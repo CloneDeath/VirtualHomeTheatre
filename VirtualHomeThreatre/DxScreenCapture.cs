@@ -16,7 +16,7 @@ namespace VirtualHomeThreatre
 	public partial class DxScreenCapture : Form
 	{
 		Device d;
-		Surface Capture;
+		Surface CapturedSurface;
 		GraphicsStream Graphics;
 		int Texture = -1;
 
@@ -32,17 +32,17 @@ namespace VirtualHomeThreatre
 
 		public void CaptureScreen()
 		{
-			if (Capture != null) {
-				Capture.Dispose();
+			if (CapturedSurface != null) {
+				CapturedSurface.Dispose();
 			}
 			if (Graphics != null) {
 				Graphics.Dispose();
 			}
 
-			Capture = d.CreateOffscreenPlainSurface(Screen.PrimaryScreen.Bounds.Width,
+			CapturedSurface = d.CreateOffscreenPlainSurface(Screen.PrimaryScreen.Bounds.Width,
 						Screen.PrimaryScreen.Bounds.Height, Format.A8R8G8B8, Pool.Scratch);
-			d.GetFrontBufferData(0, Capture);
-			Graphics = Capture.LockRectangle(LockFlags.None);
+			d.GetFrontBufferData(0, CapturedSurface);
+			Graphics = CapturedSurface.LockRectangle(LockFlags.None);
 		}
 
 		internal int GetGLTex()

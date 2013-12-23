@@ -10,6 +10,7 @@ using System.Drawing;
 using OpenTK.Graphics.OpenGL;
 using System.Drawing.Imaging;
 using OpenTK;
+using RiftSharp;
 
 namespace VirtualHomeThreatre
 {
@@ -24,7 +25,7 @@ namespace VirtualHomeThreatre
 			GraphicsManager.SetTitle("Capture Test");
 
 			GraphicsManager.Instance.X = Screen.PrimaryScreen.Bounds.Width + 1;
-			DisplayDevice.GetDisplay(DisplayIndex.Second).ChangeResolution(1280, 800, 32, 60.0f);
+			//DisplayDevice.GetDisplay(DisplayIndex.Second).ChangeResolution(1280, 800, 32, 60.0f);
 			GraphicsManager.SetWindowState(OpenTK.WindowState.Fullscreen);
 
 
@@ -33,8 +34,16 @@ namespace VirtualHomeThreatre
 
 			GraphicsManager.Update += new Action(GraphicsManager_Update);
 
+			var x = RiftSharp.RiftHeadsetDevice.FindRiftDevice();
+			x.OnMoveHead += MoveHead;
+
 			GraphicsManager.Start();
-			DisplayDevice.GetDisplay(DisplayIndex.Second).RestoreResolution();
+			//DisplayDevice.GetDisplay(DisplayIndex.Second).RestoreResolution();
+		}
+
+		static void MoveHead(object Sender, RiftInputEventArgs report)
+		{
+			Console.WriteLine(report.Report.Samples[0].Accel.X);
 		}
 
 		static void GraphicsManager_Update()
