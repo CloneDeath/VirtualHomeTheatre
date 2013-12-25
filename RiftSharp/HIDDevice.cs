@@ -37,7 +37,9 @@ namespace RiftSharp
 		private int m_nOutputReportLength;
 
 		/// <summary>Handle to the device</summary>
-		private IntPtr m_hHandle;
+		protected IntPtr m_hHandle;
+
+		protected HidCaps oCaps;
 		#endregion
 
         #region IDisposable Members
@@ -73,62 +75,27 @@ namespace RiftSharp
 
 		#region Privates/protected
 		/// <summary>
-		/// Initialises the device
+		/// Initializes the device
 		/// </summary>
 		/// <param name="strPath">Path to the device</param>
-		private void Initialise(string strPath)
+		protected virtual void Initialize(string strPath)
 		{
 			// Create the file from the device path
 			m_hHandle = CreateFile(strPath, GENERIC_READ | GENERIC_WRITE, 0, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_OVERLAPPED, IntPtr.Zero);
 			if ( m_hHandle != InvalidHandleValue )	// if the open worked...
 			{
-				///************* HACK: For the rift! *************/
-				if (!HidD_SetNumInputBuffers(m_hHandle, 128)) {
-					throw new Exception("Failed 'HidD_SetNumInputBuffers' while initializing device.");
-				}
-
-				//Sensor Range
-				SensorRangeImpl sr = new SensorRangeImpl(new SensorRange(), 0);
-				if (GetFeature(m_hHandle, ref sr.Buffer)) {
-					sr.Unpack();
-					SensorRange CurrentRange;
-					sr.GetSensorRange(out CurrentRange);
-					// Increase the magnetometer range, since the default value is not enough in practice
-					CurrentRange.MaxMagneticField = 2.5f;
-
-					SensorRangeImpl sr2 = new SensorRangeImpl(CurrentRange);
-					if (SetFeature(m_hHandle, ref sr.Buffer)) {
-						sr.GetSensorRange(out CurrentRange);
-					}
-				}
-
-				//Set Report Rate
-				SensorConfig scfg = new SensorConfig();
-				if (GetFeature(m_hHandle, ref scfg.Buffer)) {
-					scfg.Unpack();
-				}
-				int RateHz = 500;
-				if (RateHz > 1000) {
-					RateHz = 1000;
-				} else if (RateHz == 0) {
-					RateHz = 500;
-				}
-				scfg.PacketInterval = (UInt16)((1000 / RateHz) - 1);
-				scfg.Pack();
-				SetFeature(m_hHandle, ref scfg.Buffer);
-				///************* END HACK *************/
+				
 
 				IntPtr lpData;
 				if (HidD_GetPreparsedData(m_hHandle, out lpData))	// get windows to read the device data into an internal buffer
 				{
 					try
 					{
-						HidCaps oCaps;
 						HidP_GetCaps(lpData, out oCaps);	// extract the device capabilities from the internal buffer
 						m_nInputReportLength = oCaps.InputReportByteLength;	// get the input...
 						m_nOutputReportLength = oCaps.OutputReportByteLength;	// ... and output report lengths
 						m_oFile = new FileStream(m_hHandle, FileAccess.ReadWrite, true, m_nInputReportLength, true);	// wrap the file handle in a .Net file stream
-						BeginAsyncRead();	// kick off the first asynchronous read						
+						BeginAsyncRead();	// kick off the first asynchronous read		
 					}
 					finally
 					{
@@ -244,6 +211,15 @@ namespace RiftSharp
 			}
 			return null;
 		}
+
+		protected bool GetFeature(ref byte[] Data){
+			return this.GetFeature(m_hHandle, ref Data);
+		}
+
+		protected bool SetFeature(ref byte[] Data)
+		{
+			return this.SetFeature(m_hHandle, ref Data);
+		}
 		#endregion
 
 		#region Public static
@@ -274,7 +250,7 @@ namespace RiftSharp
                     if (strDevicePath.IndexOf(strSearch) >= 0)	// do a string search, if we find the VID/PID string then we found our device!
                     {
                         HIDDevice oNewDevice = (HIDDevice)Activator.CreateInstance(oType);	// create an instance of the class for this device
-                        oNewDevice.Initialise(strDevicePath);	// initialise it with the device path
+                        oNewDevice.Initialize(strDevicePath);	// initialise it with the device path
                         return oNewDevice;	// and return it
                     }
                     nIndex++;	// if we get here, we didn't find our device. So move on to the next one.

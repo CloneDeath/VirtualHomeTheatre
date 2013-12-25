@@ -75,7 +75,7 @@ namespace RiftSharp
 		{
 			CommandId  = commandId;
 			AccelScale = SelectSensorRampValue(AccelRangeRamp, r.MaxAcceleration, (1.0f / 9.81f), "MaxAcceleration");
-			GyroScale  = SelectSensorRampValue(GyroRangeRamp, r.MaxRotationRate, (float)(180.0 / Math.PI), "MaxRotationRate");
+			GyroScale = SelectSensorRampValue(GyroRangeRamp, r.MaxRotationRate, (float)(180.0 / System.Math.PI), "MaxRotationRate");
 			MagScale   = SelectSensorRampValue(MagRangeRamp, r.MaxMagneticField, 1000.0f, "MaxMagneticField");
 			Pack();
 		}
@@ -84,14 +84,14 @@ namespace RiftSharp
 		{
 			r = new SensorRange();
 			r.MaxAcceleration = AccelScale * 9.81f;
-			r.MaxRotationRate = (float)(GyroScale * Math.PI / 180.0);
+			r.MaxRotationRate = (float)(GyroScale * System.Math.PI / 180.0);
 			r.MaxMagneticField= MagScale * 0.001f;
 		}
 
 		public static SensorRange GetMaxSensorRange()
 		{
 			return new SensorRange(AccelRangeRamp[AccelRangeRamp.Length - 1] * 9.81f,
-								   GyroRangeRamp[GyroRangeRamp.Length - 1]	 * (float)(Math.PI / 180.0),
+								   GyroRangeRamp[GyroRangeRamp.Length - 1] * (float)(System.Math.PI / 180.0),
 								   MagRangeRamp[MagRangeRamp.Length - 1]     * 0.001f);
 		}
 

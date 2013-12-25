@@ -64,8 +64,9 @@ namespace VirtualHomeThreatre
 
 			unsafe {
 				GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height,
-					0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, (IntPtr)Graphics.InternalDataPointer);
+						0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, (IntPtr)Graphics.InternalDataPointer);
 			}
+
 			//GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
 			/*OpenTK.Graphics.Glu.Build2DMipmap(OpenTK.Graphics.TextureTarget.Texture2D,
 				(int)PixelInternalFormat.Rgba, data.Width, data.Height, OpenTK.Graphics.PixelFormat.Bgra,

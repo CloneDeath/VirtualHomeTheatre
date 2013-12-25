@@ -24,10 +24,11 @@ namespace VirtualHomeThreatre
 			GraphicsManager.SetResolution(1280, 800);
 			GraphicsManager.SetTitle("Capture Test");
 
-			GraphicsManager.Instance.X = Screen.PrimaryScreen.Bounds.Width + 1;
+			GraphicsManager.Instance.X = DisplayDevice.GetDisplay(DisplayIndex.Second).Bounds.X;
+			GraphicsManager.Instance.Y = DisplayDevice.GetDisplay(DisplayIndex.Second).Bounds.Y;
 			//DisplayDevice.GetDisplay(DisplayIndex.Second).ChangeResolution(1280, 800, 32, 60.0f);
 			GraphicsManager.SetWindowState(OpenTK.WindowState.Fullscreen);
-
+			
 
 			Camera2D cam2d = new Camera2D();
 			cam2d.OnRender += Draw2D;
@@ -41,9 +42,10 @@ namespace VirtualHomeThreatre
 			//DisplayDevice.GetDisplay(DisplayIndex.Second).RestoreResolution();
 		}
 
-		static void MoveHead(object Sender, RiftInputEventArgs report)
+		static void MoveHead(SensorFusion sensor)
 		{
-			Console.WriteLine(report.Report.Samples[0].Accel.X);
+			
+			//Console.WriteLine(report.Report.Samples[0].Accel.X);
 		}
 
 		static void GraphicsManager_Update()
@@ -64,16 +66,16 @@ namespace VirtualHomeThreatre
 			int sep = 100;
 			GL.Begin(BeginMode.Quads);
 			{
-				GL.TexCoord2(0, 0); GL.Vertex2(320 - sep, 0);
+				GL.TexCoord2(0, 0); GL.Vertex2(0 - sep, 0);
 				GL.TexCoord2(1, 0); GL.Vertex2(640 - sep, 0);
 				GL.TexCoord2(1, 1); GL.Vertex2(640 - sep, 800);
-				GL.TexCoord2(0, 1); GL.Vertex2(320 - sep, 800);
+				GL.TexCoord2(0, 1); GL.Vertex2(0 - sep, 800);
 			}
 			GL.Begin(BeginMode.Quads);
 			{
 				GL.TexCoord2(0, 0); GL.Vertex2(640 + sep, 0);
-				GL.TexCoord2(1, 0); GL.Vertex2(1280 - 320 + sep, 0);
-				GL.TexCoord2(1, 1); GL.Vertex2(1280 - 320 + sep, 800);
+				GL.TexCoord2(1, 0); GL.Vertex2(1280 + sep, 0);
+				GL.TexCoord2(1, 1); GL.Vertex2(1280 + sep, 800);
 				GL.TexCoord2(0, 1); GL.Vertex2(640 + sep, 800);
 			}
 			GL.End();

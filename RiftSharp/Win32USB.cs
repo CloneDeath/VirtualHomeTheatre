@@ -41,7 +41,7 @@ namespace RiftSharp
 		/// Provides the capabilities of a HID device
 		/// </summary>
         [StructLayout(LayoutKind.Sequential, Pack = 1)]
-        protected struct HidCaps
+        public struct HidCaps
         {
             public short Usage;
             public short UsagePage;
@@ -156,14 +156,14 @@ namespace RiftSharp
 
 		
 		[DllImport("hid.dll", SetLastError = true)] protected static extern bool HidD_SetNumInputBuffers(IntPtr Handle, int NumBuffers);
-		[DllImport("hid.dll", SetLastError = true)] protected static extern bool HidD_SetFeature(IntPtr Handle, ref IntPtr Data, int Length);
-		[DllImport("hid.dll", SetLastError = true)] protected static extern bool HidD_GetFeature(IntPtr Handle, ref IntPtr Data, int Length);
+		[DllImport("hid.dll", SetLastError = true)] protected static extern bool HidD_SetFeature(IntPtr Handle, IntPtr Data, int Length);
+		[DllImport("hid.dll", SetLastError = true)] protected static extern bool HidD_GetFeature(IntPtr Handle, out IntPtr Data, int Length);
 
 		public bool SetFeature(IntPtr Handle, ref byte[] Data)
 		{
 			IntPtr unmanagedPointer = Marshal.AllocHGlobal(Data.Length);
 			Marshal.Copy(Data, 0, unmanagedPointer, Data.Length);
-			bool Result = HidD_SetFeature(Handle, ref unmanagedPointer, Data.Length);
+			bool Result = HidD_SetFeature(Handle, unmanagedPointer, Data.Length);
 			Marshal.FreeHGlobal(unmanagedPointer);
 			return Result;
 		}
@@ -171,7 +171,7 @@ namespace RiftSharp
 		public bool GetFeature(IntPtr Handle, ref byte[] Data)
 		{
 			IntPtr unmanagedPointer = Marshal.AllocHGlobal(Data.Length);
-			bool Result = HidD_GetFeature(Handle, ref unmanagedPointer, Data.Length);
+			bool Result = HidD_GetFeature(Handle, out unmanagedPointer, Data.Length);
 			if (Result) {
 				Marshal.Copy(unmanagedPointer, Data, 0, Data.Length);
 			}

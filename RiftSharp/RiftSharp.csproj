@@ -42,15 +42,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BuzzHandsetDevice.cs" />
     <Compile Include="HIDDevice.cs" />
+    <Compile Include="Math\Axis.cs" />
+    <Compile Include="Math\HandedSystem.cs" />
+    <Compile Include="Math\Matrix4f.cs" />
+    <Compile Include="Math\Quatf.cs" />
+    <Compile Include="Math\RotateDirection.cs" />
+    <Compile Include="MessageBodyFrame.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Report.cs" />
     <Compile Include="RiftHeadsetDevice.cs" />
-    <Compile Include="RiftInputEventArgs.cs" />
     <Compile Include="RiftInputReport.cs" />
     <Compile Include="SensorConfig.cs" />
+    <Compile Include="SensorFilter.cs" />
+    <Compile Include="SensorFusion.cs" />
+    <Compile Include="SensorInfo.cs" />
+    <Compile Include="SensorKeepAlive.cs" />
     <Compile Include="SensorRange.cs" />
+    <Compile Include="Math\Vector3f.cs" />
+    <Content Include="Util\RenderStereo.cpp" />
+    <Content Include="Util\RenderStereo.h" />
     <Compile Include="Win32USB.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

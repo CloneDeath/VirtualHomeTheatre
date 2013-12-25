@@ -75,7 +75,7 @@ namespace RiftSharp
 		{
 			Vec3i ret = new Vec3i();
 			uint[] Data = new uint[8];
-			Buffer.CopyTo(Data, offset);
+			Array.Copy(Buffer, offset, Data, 0, 8);
 
 			ret.X = SignExtension((Data[0] << 13) | (Data[1] << 5) | ((Data[2] & 0xF8) >> 3), 21);
 			ret.Y = SignExtension(((Data[2] & 0x07) << 18) | (Data[3] << 10) | (Data[4] << 2) | ((Data[5] & 0xC0) >> 6), 21);
