@@ -85,20 +85,20 @@ namespace VirtualHomeThreatre
 			}
 
 			GL.BindFramebuffer(FramebufferTarget.FramebufferExt, FrameBuffer);
-			GL.ClearColor(Color.FromArgb(0, 0, 0, 0));
-			GL.ClearDepth(1.0f);
-			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-			GL.Viewport(0, 0, Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
-			GL.MatrixMode(MatrixMode.Projection);
-			GL.LoadIdentity();
-			GL.Ortho(0, Screen.PrimaryScreen.Bounds.Width, 0, Screen.PrimaryScreen.Bounds.Height, -1, 1);
-			GL.MatrixMode(MatrixMode.Modelview);
-			GL.LoadIdentity();
-			GL.Disable(EnableCap.Texture2D);
-			GL.Disable(EnableCap.Blend);
-			GL.Enable(EnableCap.DepthTest);
+			//GL.ClearColor(Color.FromArgb(0, 0, 0, 0));
+			//GL.ClearDepth(1.0f);
+			//GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+			//GL.Viewport(0, 0, Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
+			//GL.MatrixMode(MatrixMode.Projection);
+			//GL.LoadIdentity();
+			//GL.Ortho(0, Screen.PrimaryScreen.Bounds.Width, 0, Screen.PrimaryScreen.Bounds.Height, -1, 1);
+			//GL.MatrixMode(MatrixMode.Modelview);
+			//GL.LoadIdentity();
+			//GL.Disable(EnableCap.Texture2D);
+			//GL.Disable(EnableCap.Blend);
+			//GL.Enable(EnableCap.DepthTest);
 			unsafe {
-				GL.DrawPixels(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height,
+				GL.DrawPixels(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height, 
 					OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, (IntPtr)Graphics.InternalDataPointer);
 			}
 			GL.BindFramebuffer(FramebufferTarget.FramebufferExt, 0);

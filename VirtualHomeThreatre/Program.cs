@@ -54,12 +54,14 @@ namespace VirtualHomeThreatre
 				GraphicsManager.Close();
 			}
 
-			cap.CaptureScreen();
-			cap.GetGLTex();
+			
 		}
 
 		static void Draw2D()
 		{
+			cap.CaptureScreen();
+			cap.GetGLTex();
+
 			capture_area = cap.Texture;
 			if (capture_area != -1) {
 				GL.Enable(EnableCap.Texture2D);
