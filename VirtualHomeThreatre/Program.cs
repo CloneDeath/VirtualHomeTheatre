@@ -11,6 +11,7 @@ using OpenTK.Graphics.OpenGL;
 using System.Drawing.Imaging;
 using OpenTK;
 using RiftSharp;
+using System.Threading;
 
 namespace VirtualHomeThreatre
 {
@@ -75,6 +76,7 @@ namespace VirtualHomeThreatre
 			capture_area = cap.Texture;
 			if (capture_area != -1) {
 				GL.Enable(EnableCap.Texture2D);
+				GL.Color3(Color.White);
 				GL.BindTexture(TextureTarget.Texture2D, capture_area);
 				int sep = 100;
 				GL.Begin(BeginMode.Quads);
@@ -84,12 +86,34 @@ namespace VirtualHomeThreatre
 					GL.TexCoord2(1, 1); GL.Vertex2(640 - sep, 800);
 					GL.TexCoord2(0, 1); GL.Vertex2(0 - sep, 800);
 				}
-				GL.Begin(BeginMode.Quads);
 				{
 					GL.TexCoord2(0, 0); GL.Vertex2(640 + sep, 0);
 					GL.TexCoord2(1, 0); GL.Vertex2(1280 + sep, 0);
 					GL.TexCoord2(1, 1); GL.Vertex2(1280 + sep, 800);
 					GL.TexCoord2(0, 1); GL.Vertex2(640 + sep, 800);
+				}
+				GL.End();
+
+				GL.Disable(EnableCap.Texture2D);
+				
+				var MousePos = System.Windows.Forms.Cursor.Position;
+				MousePos.X = (int)((MousePos.X * 1.0f / Screen.PrimaryScreen.Bounds.Width) * 640);
+				MousePos.Y = (int)((MousePos.Y * 1.0f / Screen.PrimaryScreen.Bounds.Height) * 800);
+				
+				GL.Color3(Color.White);
+				GL.Begin(BeginMode.Triangles);
+				{
+					GL.Vertex2(640 + sep + MousePos.X, 0 + MousePos.Y);
+					GL.Vertex2(640 + sep + MousePos.X + 10, 0 + MousePos.Y);
+					GL.Vertex2(640 + sep + MousePos.X, 0 + MousePos.Y + 10);
+				}
+				GL.End();
+				GL.Color3(Color.Black);
+				GL.Begin(BeginMode.LineLoop);
+				{
+					GL.Vertex2(640 + sep + MousePos.X, 0 + MousePos.Y);
+					GL.Vertex2(640 + sep + MousePos.X + 10, 0 + MousePos.Y);
+					GL.Vertex2(640 + sep + MousePos.X, 0 + MousePos.Y + 10);
 				}
 				GL.End();
 			}
