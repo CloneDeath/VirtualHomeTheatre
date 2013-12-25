@@ -19,14 +19,22 @@ namespace VirtualHomeThreatre
 		static DxScreenCapture cap = null;
 		static int capture_area = 0;
 
+		const bool ChangeResolution = false;
+
 		static void Main(string[] args)
 		{
+			if (ChangeResolution) {
+				DisplayDevice.GetDisplay(DisplayIndex.Default).ChangeResolution(640, 480, 32, 60f);
+			}
 			GraphicsManager.SetResolution(1280, 800);
 			GraphicsManager.SetTitle("Capture Test");
 
+			
 			GraphicsManager.Instance.X = DisplayDevice.GetDisplay(DisplayIndex.Second).Bounds.X;
 			GraphicsManager.Instance.Y = DisplayDevice.GetDisplay(DisplayIndex.Second).Bounds.Y;
-			//DisplayDevice.GetDisplay(DisplayIndex.Second).ChangeResolution(1280, 800, 32, 60.0f);
+			if (ChangeResolution) {
+				DisplayDevice.GetDisplay(DisplayIndex.Second).ChangeResolution(1280, 800, 32, 60.0f);
+			}
 			GraphicsManager.SetWindowState(OpenTK.WindowState.Fullscreen);
 			
 
@@ -38,8 +46,12 @@ namespace VirtualHomeThreatre
 			var x = RiftSharp.RiftHeadsetDevice.FindRiftDevice();
 			x.OnMoveHead += MoveHead;
 			cap = new DxScreenCapture();
+			
 			GraphicsManager.Start();
-			//DisplayDevice.GetDisplay(DisplayIndex.Second).RestoreResolution();
+			if (ChangeResolution) {
+				DisplayDevice.GetDisplay(DisplayIndex.Second).RestoreResolution();
+				DisplayDevice.GetDisplay(DisplayIndex.Default).RestoreResolution();
+			}
 		}
 
 		static void MoveHead(SensorFusion sensor)
