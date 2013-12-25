@@ -10,6 +10,7 @@ using Microsoft.DirectX.Direct3D;
 using Microsoft.DirectX;
 using System.Drawing.Imaging;
 using OpenTK.Graphics.OpenGL;
+using System.Threading;
 
 namespace VirtualHomeThreatre
 {
@@ -18,11 +19,13 @@ namespace VirtualHomeThreatre
 		Device d;
 		Surface CapturedSurface;
 		GraphicsStream Graphics;
-		int Texture = -1;
+		public int Texture = -1;
+		int FrameBuffer;
+		int RenderBuffer;
 
 		public DxScreenCapture()
 		{
-			//InitializeComponent();
+			//InitializeComponent(); //Don't need, we're only a form to get a handle for directX - I think this is cheating/wrong, there's got to be a better way.
 
 			PresentParameters present_params = new PresentParameters();
 			present_params.Windowed = true;
@@ -47,84 +50,60 @@ namespace VirtualHomeThreatre
 
 		internal int GetGLTex()
 		{
+			//First time Genesis
 			if (Texture == -1) {
 				Texture = GL.GenTexture();
-			}
 
-			GL.BindTexture(TextureTarget.Texture2D, Texture);
+				GL.BindTexture(TextureTarget.Texture2D, Texture);
 
-			bool LinearFilter = false;
-			if (LinearFilter) {
-				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear); //Smooth
-				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
-			} else {
-				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest); //Pixely
-				GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-			}
+				bool LinearFilter = false;
+				if (LinearFilter) {
+					GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear); //Smooth
+					GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
+				} else {
+					GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest); //Pixely
+					GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+				}
 
-			unsafe {
 				GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgb, Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height,
-						0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, (IntPtr)Graphics.InternalDataPointer);
+					0, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, IntPtr.Zero);
+
+				GL.GenFramebuffers(1, out FrameBuffer);
+				GL.BindFramebuffer(FramebufferTarget.FramebufferExt, FrameBuffer);
+				GL.FramebufferTexture2D(FramebufferTarget.FramebufferExt, FramebufferAttachment.ColorAttachment0Ext, TextureTarget.Texture2D, Texture, 0);
+				//GL.GenRenderbuffers(1, out RenderBuffer);
+				//GL.BindRenderbuffer(RenderbufferTarget.RenderbufferExt, RenderBuffer);
+				//GL.RenderbufferStorage(RenderbufferTarget.RenderbufferExt, RenderbufferStorage.
+
+				var x = GL.CheckFramebufferStatus(FramebufferTarget.FramebufferExt);
+				if (x == FramebufferErrorCode.FramebufferCompleteExt) {
+					Console.WriteLine("good");
+				} else {
+					throw new Exception("Looks like your graphics card doesn't support frame buffers...");
+				}
+
 			}
 
-			//GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-			/*OpenTK.Graphics.Glu.Build2DMipmap(OpenTK.Graphics.TextureTarget.Texture2D,
-				(int)PixelInternalFormat.Rgba, data.Width, data.Height, OpenTK.Graphics.PixelFormat.Bgra,
-				 OpenTK.Graphics.PixelType.UnsignedByte, data.Scan0);*/
+			GL.BindFramebuffer(FramebufferTarget.FramebufferExt, FrameBuffer);
+			GL.ClearColor(Color.FromArgb(0, 0, 0, 0));
+			GL.ClearDepth(1.0f);
+			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+			GL.Viewport(0, 0, Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height);
+			GL.MatrixMode(MatrixMode.Projection);
+			GL.LoadIdentity();
+			GL.Ortho(0, Screen.PrimaryScreen.Bounds.Width, 0, Screen.PrimaryScreen.Bounds.Height, -1, 1);
+			GL.MatrixMode(MatrixMode.Modelview);
+			GL.LoadIdentity();
+			GL.Disable(EnableCap.Texture2D);
+			GL.Disable(EnableCap.Blend);
+			GL.Enable(EnableCap.DepthTest);
+			unsafe {
+				GL.DrawPixels(Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height,
+					OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, (IntPtr)Graphics.InternalDataPointer);
+			}
+			GL.BindFramebuffer(FramebufferTarget.FramebufferExt, 0);
+
 			return Texture;
-
-
-
-			//Bitmap b = new Bitmap(rectangle.Width, rectangle.Height);
-
-			//BitmapData data = b.LockBits(new Rectangle(new Point(0, 0), b.Size), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
-			//unsafe {
-			//    byte* ptr = (byte*)data.Scan0;
-			//    for (int y = rectangle.Top; y < rectangle.Bottom; y++) {
-			//        Graphics.Position = ((Screen.PrimaryScreen.Bounds.Width * y) + rectangle.Left) * 4;
-			//        for (int x = rectangle.Left; x < rectangle.Right; x++) {
-			//            Graphics.InternalBufferPointer
-			//            int subx = x - rectangle.Left;
-			//            int suby = y - rectangle.Top;
-			//            ptr[((subx + (suby * rectangle.Width)) * 4) + 0] = (byte)Graphics.ReadByte(); //B
-			//            ptr[((subx + (suby * rectangle.Width)) * 4) + 1] = (byte)Graphics.ReadByte(); //G
-			//            ptr[((subx + (suby * rectangle.Width)) * 4) + 2] = (byte)Graphics.ReadByte(); //R
-			//            ptr[((subx + (suby * rectangle.Width)) * 4) + 3] = (byte)Graphics.ReadByte(); //A
-			//            //b.SetPixel(x - rectangle.Left, y - rectangle.Top, Color.FromArgb(Alpha, Red, Green, Blue));
-			//        }
-			//    }
-			//}
-			//b.UnlockBits(data);
-
-			//return b;
 		}
-
-		//static int MakeTexture(Bitmap bitmap, bool LinearFilter)
-		//{
-		//    BitmapData data = bitmap.LockBits(
-		//      new Rectangle(0, 0, bitmap.Width, bitmap.Height),
-		//      ImageLockMode.ReadOnly,
-		//      bitmap.PixelFormat);
-		//    //Img.PixelFormat.Format32bppArgb);
-		//    int tex = GL.GenTexture();
-
-		//    GL.BindTexture(TextureTarget.Texture2D, tex);
-
-		//    if (LinearFilter) {
-		//        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Linear); //Smooth
-		//        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.LinearMipmapLinear);
-		//    } else {
-		//        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest); //Pixely
-		//        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-		//    }
-
-		//    GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, Screen.PrimaryScreen.
-		//    GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-		//    OpenTK.Graphics.Glu.Build2DMipmap(OpenTK.Graphics.TextureTarget.Texture2D,
-		//        (int)PixelInternalFormat.Rgba, data.Width, data.Height, OpenTK.Graphics.PixelFormat.Bgra,
-		//         OpenTK.Graphics.PixelType.UnsignedByte, data.Scan0);
-		//    bitmap.UnlockBits(data);
-		//    return tex;
-		//}
 	}
 }
